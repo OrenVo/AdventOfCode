@@ -10,6 +10,8 @@ data MulInstruction =
 
 instance Show MulInstruction where
   show :: MulInstruction -> String
+  show Do = "Do()"
+  show Dont = "Don't()"
   show (Mul a b) = "Mul(" ++ show a ++ "," ++ show b ++ ")"
 
 
@@ -40,40 +42,55 @@ mulParser = do
 
 
 mulMulInstruction :: MulInstruction -> Int
+mulMulInstruction Do = 0
+mulMulInstruction Dont = 0
 mulMulInstruction (Mul a b) = a * b
 
-
-part1 :: String -> Int
-part1 input = case findMulInstructions input of
-    Left err -> error $ show err
-    Right results -> trace (show (filter (\(Mul a b) -> a /= 0 || b /= 0) results)) (sum $ map (\(Mul a b) -> a * b) (filter (\(Mul a b) -> a /= 0 || b /= 0) results))
 
 findMulInstructionsDo :: String -> Either ParseError [MulInstruction]
 findMulInstructionsDo = parse (many (try mulParserOrDo <|> consumeOne)) "" -- TODO - parse untile dont then skip until do
 
 mulParserOrDo :: Parser MulInstruction
-mulParserOrDo = do
-    return Do
+mulParserOrDo = try mulParser <|> try doParser <|> try dontParser
 
 doParser :: Parser MulInstruction
 doParser = do
+    string "do()"
     return Do
 
 dontParser :: Parser MulInstruction
 dontParser = do
+    string "don't()"
     return Dont
 
+advancedFilter :: [MulInstruction] -> [MulInstruction]
+advancedFilter = go True
+  where
+    go _ [] = []
+    go keep (Do:xs) = go True xs
+    go keep (Dont:xs) = go False xs
+    go keep (Mul 0 0:xs) = go keep xs
+    go keep (Mul a b:xs) = if keep then Mul a b : go keep xs else go keep xs
+
+part1 :: String -> Int
+part1 input = case findMulInstructions input of
+    Left err -> error $ show err
+    -- trace (show (filter (\(Mul a b) -> a /= 0 || b /= 0) results))
+    Right results -> sum $ map (\(Mul a b) -> a * b) (filter (\(Mul a b) -> a /= 0 || b /= 0) results)
+
+filterZero :: MulInstruction -> Bool
+filterZero (Mul 0 0) = False
+filterZero _ = True
 
 part2 :: String -> Int
 part2 input = case findMulInstructionsDo input of
     Left err -> error $ show err
-    Right results -> trace (show (filter (\(Mul a b) -> a /= 0 || b /= 0) (Do : results))) (sum $ map (\(Mul a b) -> a * b) (filter (\(Mul a b) -> a /= 0 || b /= 0) (Do : results)))
+    -- trace (show (filter filterZero results))
+    Right results -> (sum $ map (\(Mul a b) -> a * b) (advancedFilter results))
 
 
 main :: IO()
 main = do
     input <- readFile "input"
-    let result1 = part1 input
-    let result2 = part2 input
-    print result1
-    print result2
+    putStrLn ("Part 1: " ++ show (part1 input))
+    putStrLn ("Part 2: " ++ show (part2 input))
