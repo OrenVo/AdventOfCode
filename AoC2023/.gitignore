@@ -1,0 +1,16 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled dynamic libraries
+*.so
+*.dylib
+*.dll
+
+*/**/AoC-*
+!*/**/*.go
+# Build directory
+/build/
+
+# Dependency directories
+/vendor/

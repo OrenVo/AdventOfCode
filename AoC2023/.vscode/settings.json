@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "cstdint": "cpp",
+        "string": "cpp",
+        "ostream": "cpp",
+        "iostream": "cpp",
+        "algorithm": "cpp",
+        "vector": "cpp",
+        "array": "cpp"
+    }
+}
