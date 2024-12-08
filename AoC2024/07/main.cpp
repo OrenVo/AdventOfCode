@@ -147,8 +147,14 @@ uint64_t tryWithConcatOperator(CalibrationEquation e){
 
 uint64_t part2(std::vector<CalibrationEquation> eqs){
     uint64_t result = 0;
+    #pragma omp parallel for num_threads(12) schedule(dynamic)
+    
     for (CalibrationEquation &e : eqs){
-        result += tryWithConcatOperator(e);
+        uint64_t res = tryWithConcatOperator(e);
+        {
+            #pragma omp critical
+            result += res;
+        }
     }
     return result;
 }
