@@ -20,8 +20,6 @@ struct CalibrationEquation {
     CalibrationEquation(uint64_t result, std::vector<uint64_t> values): result(result), values(values), number_of_operators(values.size() - 1) {}
 };
 
-size_t max_length = 0;
-
 std::vector<CalibrationEquation> parseInput(std::string filename){
     std::ifstream inputFile(filename);
     if (!inputFile.is_open()) {
@@ -47,7 +45,6 @@ std::vector<CalibrationEquation> parseInput(std::string filename){
             length++;
             numbers.push_back(num);
         }
-        max_length = std::max(max_length, length);
         result.emplace_back(firstNumber, numbers);
     }
     inputFile.close();
@@ -110,24 +107,6 @@ std::pair<uint64_t, std::set<size_t>> part1(std::vector<CalibrationEquation> eqs
         }
     }
     return {cumsum, indices};
-}
-
-struct TernaryTree {
-    std::shared_ptr<TernaryTree> add;
-    std::shared_ptr<TernaryTree> mul;
-    std::shared_ptr<TernaryTree> concat;
-};
-
-std::shared_ptr<TernaryTree> createTree(size_t curr_depth, size_t max_depth){
-    using treePtr = std::shared_ptr<TernaryTree>;
-    treePtr root = std::make_shared<TernaryTree>();
-    if (curr_depth == max_depth)
-        return nullptr;
-    root->add = createTree(curr_depth + 1, max_depth);
-    root->mul = createTree(curr_depth + 1, max_depth);
-    root->concat = createTree(curr_depth + 1, max_depth);
-
-    return root;
 }
 
 uint64_t concatOperator(uint64_t a, uint64_t b){
