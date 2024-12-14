@@ -39,4 +39,4 @@ main = do
     input <- readFile "test_input"
     let parsed = parseInput input
     putStrLn ("Part 1: " ++ show (part1 parsed))
-    putStrLn ("Part 2: " ++ show (part2 parsed))
+    -- putStrLn ("Part 2: " ++ show (part2 parsed))
