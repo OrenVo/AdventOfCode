@@ -1,4 +1,5 @@
 import Debug.Trace
+import Data.List (sortOn)
 
 moveFiles :: [Int] -> Int -> [Int] -> Int -> [Int]
 moveFiles (x:y:arr) idx1 (z:j:rev) idx2
@@ -28,24 +29,14 @@ part1 xs = hash (moveFiles arr idx1 rev idx2)
         rev = reverse xs
         idx2 = length xs `div` 2
 
-moveFileWithoutFragmenting :: [Int] -> Int -> [Int] -> Int -> [Int]
-moveFileWithoutFragmenting _ _ _ _ = [] -- TODO for part 2
-
-part2 :: [Int] -> Int
-part2 xs = hash (moveFileWithoutFragmenting arr idx1 rev idx2)
-    where
-        arr = xs
-        idx1 = 0
-        rev = reverse xs
-        idx2 = length xs `div` 2
-
+-- part 2 is in main2.cpp
 
 parseInput :: String -> [Int]
 parseInput = map (\x -> read [x])
 
 main :: IO()
 main = do
-    input <- readFile "input"
+    input <- readFile "test_input"
     let parsed = parseInput input
     putStrLn ("Part 1: " ++ show (part1 parsed))
-    -- putStrLn ("Part 2: " ++ show (part2 parsed))
+    putStrLn ("Part 2: " ++ show (part2 parsed))
