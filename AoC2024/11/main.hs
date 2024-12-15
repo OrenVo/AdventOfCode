@@ -1,30 +1,42 @@
-import Data.ByteString.Lazy (split)
 import GHC.Conc (par, pseq)
 
-blink :: [Int] -> [Int]
-blink [] = []
-blink (x:xs)
-    | x == 0 = 1 : blink xs
-    | even (length (show x)) =
-      let (l_half, r_half) = splitAt (length (show x) `div` 2) (show x)
-      in read l_half : read r_half : blink xs
-    | otherwise = (x * 2024) : blink xs
-
-blinkXTimes :: [Int] -> Int -> [Int]
-blinkXTimes xs 0 = xs
-blinkXTimes xs x = blinkXTimes (blink xs) (x - 1)
-
 part1 :: [Int] -> Int
-part1 xs = length (blinkXTimes xs 25)
+part1 xs = blinkXDFS xs 25
 
 parseInput :: String -> [Int]
 parseInput s = map read (words s)
 
 part2 :: [Int] -> Int
-part2 [] = 0
-part2 (x:xs) = par n1 (pseq n2 (n1 + n2))
-    where n1 = length (blinkXTimes [x] 75)
-          n2 = part2 xs
+part2 xs = blinkXDFS xs 75
+
+countDigitsHelper :: Int -> Int -> Int
+countDigitsHelper 0 y = y
+countDigitsHelper x y = countDigitsHelper (x `div` 10) (y +1)
+
+countDigits :: Int -> Int
+countDigits x = countDigitsHelper x 0
+
+blinkDFS :: Int -> Int -> Int
+blinkDFS _ 0 = 1
+blinkDFS 0 depth = blinkDFS 1 (depth - 1)
+blinkDFS x depth
+    | let digit_count = countDigits x,
+      even digit_count =
+      let mask = 10 ^ (digit_count `div` 2)
+          left = x `div` mask
+          right = x `mod` mask
+      in blinkDFS left (depth - 1) + blinkDFS right (depth - 1)
+    | otherwise = blinkDFS (x * 2024) (depth - 1)
+
+blinkXDFS :: [Int] -> Int -> Int
+blinkXDFS xs y = foldr (\ x -> (+) (blinkDFS x y)) 0 xs
+
+-- parallel blink for each number
+pblinkXDFS :: [Int] -> Int -> Int
+pblinkXDFS [] _ = 0
+pblinkXDFS (x:xs) y = par n1 (pseq n2 (n1 + n2))
+    where n1 = blinkDFS x y
+          n2 = pblinkXDFS xs y
 
 main :: IO()
 main = do
